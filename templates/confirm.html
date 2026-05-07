@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadyLab — Confirmación</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+           background: #f5f5f4; min-height: 100vh;
+           display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { background: #fff; border-radius: 16px; padding: 40px 36px;
+            max-width: 420px; width: 100%; text-align: center;
+            border: 1px solid #e5e5e4; }
+    .icon { font-size: 48px; margin-bottom: 20px; }
+    h1 { font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+    p  { font-size: 14px; color: #6b6b69; line-height: 1.6; margin-bottom: 8px; }
+    .detail { background: #f5f5f4; border-radius: 10px; padding: 16px 20px;
+              text-align: left; margin: 20px 0; }
+    .detail-row { display: flex; justify-content: space-between; font-size: 13px;
+                  padding: 5px 0; border-bottom: 1px solid #e5e5e4; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-key { color: #6b6b69; }
+    .logo { font-size: 13px; color: #9c9a92; margin-top: 24px;
+            display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .logo-dot { width: 7px; height: 7px; border-radius: 50%; background: #1D9E75; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    {% if message == "confirmed" %}
+      <div class="icon">✅</div>
+      <h1>¡Preparación confirmada!</h1>
+      <p>Hemos registrado que has iniciado tu preparación. El laboratorio ha sido notificado.</p>
+    {% else %}
+      <div class="icon">👍</div>
+      <h1>Ya estabas confirmado</h1>
+      <p>Tu preparación ya había sido registrada anteriormente.</p>
+    {% endif %}
+
+    <div class="detail">
+      <div class="detail-row">
+        <span class="detail-key">Paciente</span>
+        <strong>{{ appointment.patient.name }}</strong>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Análisis</span>
+        <span>{{ appointment.exam_type }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Hora de cita</span>
+        <span>{{ appointment.scheduled_at|date:"H:i" }} hrs</span>
+      </div>
+      {% if appointment.fasting_required %}
+      <div class="detail-row">
+        <span class="detail-key">Ayuno requerido</span>
+        <span>
+          {{ appointment.total_fasting_hours }} horas
+          {% if appointment.meal_extra_hours %}
+            <span style="font-size:11px;background:#faeeda;color:#633806;padding:1px 7px;border-radius:100px;margin-left:4px">
+              +{{ appointment.meal_extra_hours }}h High Fat
+            </span>
+          {% endif %}
+        </span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Inicio de ayuno</span>
+        <span>{{ appointment.fasting_start|date:"H:i" }} hrs</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <p>Recuerda llegar puntual a tu cita. Si tienes dudas, contacta al laboratorio.</p>
+
+    <div class="logo"><div class="logo-dot"></div>ReadyLab</div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadyLab — Comida registrada</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+         background:#f5f5f4;min-height:100vh;display:flex;align-items:center;
+         justify-content:center;padding:24px}
+    .card{background:#fff;border-radius:16px;padding:36px 32px;max-width:400px;
+          width:100%;text-align:center;border:1px solid #e5e5e4}
+    .icon{font-size:48px;margin-bottom:16px}
+    h1{font-size:18px;font-weight:600;margin-bottom:8px}
+    p{font-size:14px;color:#6b6b69;line-height:1.6;margin-bottom:6px}
+    .detail{background:#f5f5f4;border-radius:10px;padding:14px 18px;text-align:left;margin:18px 0}
+    .detail-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;
+                border-bottom:1px solid #e5e5e4}
+    .detail-row:last-child{border-bottom:none}
+    .detail-key{color:#6b6b69}
+    .badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:12px;font-weight:600}
+    .badge-low{background:#eaf3de;color:#27500A}
+    .badge-elevated{background:#fcebeb;color:#791F1F}
+    .badge-meal{background:#f1efe8;color:#444441}
+    .alert{background:#fcebeb;border-radius:10px;padding:14px 18px;margin:14px 0;
+           font-size:13px;color:#791F1F;text-align:left;line-height:1.5}
+    .success{background:#eaf3de;border-radius:10px;padding:14px 18px;margin:14px 0;
+             font-size:13px;color:#27500A;text-align:left;line-height:1.5}
+    .logo{font-size:12px;color:#9c9a92;margin-top:20px;display:flex;align-items:center;
+          justify-content:center;gap:6px}
+    .logo-dot{width:7px;height:7px;border-radius:50%;background:#1D9E75}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">✅</div>
+    <h1>Comida registrada correctamente</h1>
+    <p>Tu información fue recibida y tu protocolo se actualizó automáticamente.</p>
+
+    <div class="detail">
+      <div class="detail-row">
+        <span class="detail-key">Paciente</span>
+        <strong>{{ appointment.patient.name }}</strong>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Comida reportada</span>
+        <span class="badge badge-meal">{{ meal_label }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Análisis</span>
+        <span>{{ appointment.exam_type }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Hora de cita</span>
+        <span>{{ appointment.scheduled_at|date:"d/m/Y H:i" }} hrs</span>
+      </div>
+      {% if appointment.fasting_required %}
+      <div class="detail-row">
+        <span class="detail-key">Ayuno total</span>
+        <strong>{{ appointment.total_fasting_hours }} horas</strong>
+      </div>
+      <div class="detail-row">
+        <span class="detail-key">Inicio de ayuno</span>
+        <span>{{ appointment.fasting_start|date:"H:i" }} hrs</span>
+      </div>
+      {% endif %}
+      <div class="detail-row">
+        <span class="detail-key">Riesgo preanalítico</span>
+        <span class="badge {% if appointment.preanalytic_risk == 'elevated' %}badge-elevated{% else %}badge-low{% endif %}">
+          {% if appointment.preanalytic_risk == "elevated" %}Elevado{% else %}Bajo{% endif %}
+        </span>
+      </div>
+    </div>
+
+    {% if appointment.preanalytic_risk == "elevated" %}
+    <div class="alert">
+      ⚠️ Tu última comida fue alta en grasas. Se añadieron <strong>{{ appointment.meal_extra_hours }}h extra</strong>
+      de ayuno para garantizar resultados precisos en tu análisis.
+      Tu ayuno ahora inicia a las <strong>{{ appointment.fasting_start|date:"H:i" }}</strong>.
+    </div>
+    {% else %}
+    <div class="success">
+      ✅ Todo en orden. Tu preparación va bien. Recuerda iniciar tu ayuno a las
+      <strong>{{ appointment.fasting_start|date:"H:i" }}</strong> hrs.
+    </div>
+    {% endif %}
+
+    <p style="margin-top:14px;font-size:12px;color:#9c9a92">
+      Este registro quedó guardado en tu protocolo de preparación. El laboratorio puede verlo en tiempo real.
+    </p>
+
+    <div class="logo"><div class="logo-dot"></div>ReadyLab</div>
+  </div>
+</body>
+</html>

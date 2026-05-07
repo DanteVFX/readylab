@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReadyLab — Plataforma de Preparación Preanalítica</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#f0f4f7;
+      --surface:#ffffff;
+      --border:#dde4ea;
+      --text:#1a2332;
+      --muted:#5a6b7d;
+      --primary:#0891b2;
+      --primary-dk:#0e7490;
+      --primary-light:#e0f7fa;
+      --green:#0f9d7a;
+      --green-dk:#0a7d62;
+      --accent:#06b6d4;
+      --navy:#0f2b46;
+      --navy-light:#1e3a5f;
+    }
+    body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+         background:var(--bg);color:var(--text);font-size:14px}
+
+    /* Navbar — dark navy medical style */
+    nav{background:linear-gradient(135deg,var(--navy),var(--navy-light));
+        padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;
+        position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(15,43,70,.15)}
+    .logo{font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;color:#fff;
+          letter-spacing:-.3px}
+    .logo-icon{width:32px;height:32px;border-radius:8px;
+      background:linear-gradient(135deg,var(--accent),var(--green));
+      display:flex;align-items:center;justify-content:center}
+    .logo-icon svg{width:18px;height:18px}
+    .nav-right{display:flex;align-items:center;gap:10px}
+    .badge-live{background:rgba(6,182,212,.15);color:#67e8f9;font-size:11px;font-weight:600;
+                padding:4px 12px;border-radius:100px;display:flex;align-items:center;gap:6px;
+                border:1px solid rgba(6,182,212,.25)}
+    .badge-impact{background:rgba(15,157,122,.15);color:#6ee7b7;font-size:11px;font-weight:600;
+                  padding:4px 12px;border-radius:100px;display:flex;align-items:center;gap:6px;
+                  border:1px solid rgba(15,157,122,.25)}
+    .pulse{width:6px;height:6px;border-radius:50%;background:#06b6d4;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+    /* Buttons */
+    .btn{padding:7px 16px;border-radius:8px;border:1px solid var(--border);
+         background:var(--surface);cursor:pointer;font-size:13px;color:var(--text);font-weight:500;
+         transition:all .15s}
+    .btn:hover{background:var(--bg);border-color:var(--primary)}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--green));color:#fff;
+                 border:none;font-weight:600;box-shadow:0 2px 8px rgba(8,145,178,.25)}
+    .btn-primary:hover{box-shadow:0 4px 16px rgba(8,145,178,.35);transform:translateY(-1px)}
+    .btn-sm{padding:5px 12px;font-size:12px;border-radius:6px}
+
+    /* Stat cards */
+    .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:20px 28px 14px}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+               padding:16px 18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+                       background:var(--border);transition:background .2s}
+    .stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.06);transform:translateY(-2px)}
+    .stat-card.active{border-color:var(--primary)}
+    .stat-card.active::before{background:var(--primary)}
+    .stat-label{font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;
+                letter-spacing:.04em;font-weight:500}
+    .stat-val{font-size:28px;font-weight:700}
+    .c-blue{color:#0284c7}.c-teal{color:#0891b2}.c-green{color:#0f9d7a}
+    .c-amber{color:#d97706}.c-red{color:#dc2626}
+
+    /* Compliance banner */
+    .compliance-banner{background:linear-gradient(135deg,#0f2b46,#1e3a5f);
+      border-radius:14px;margin:0 28px 16px;padding:20px 24px;
+      display:flex;justify-content:space-between;align-items:center;color:#fff;
+      box-shadow:0 4px 20px rgba(15,43,70,.2)}
+    .compliance-label{font-size:11px;color:rgba(255,255,255,.6);text-transform:uppercase;
+                      letter-spacing:.08em;font-weight:500}
+    .compliance-value{font-size:34px;font-weight:700;color:#67e8f9;margin-top:6px}
+    .funnel-mini{display:flex;gap:16px;font-size:12px;color:rgba(255,255,255,.7);
+                 flex-wrap:wrap;align-items:center}
+    .funnel-mini span{display:flex;align-items:center;gap:5px}
+    .funnel-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+    /* Dashboard grid: table + sidebar */
+    .dashboard-grid{display:grid;grid-template-columns:3fr 1fr;gap:18px;
+                    align-items:start;margin:0 28px 28px}
+
+    /* Table */
+    .table-wrap{background:var(--surface);border:1px solid var(--border);
+                border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+    .table-header{display:flex;align-items:center;justify-content:space-between;
+                  padding:16px 22px;border-bottom:1px solid var(--border)}
+    .table-title{font-size:15px;font-weight:700;color:var(--navy)}
+    .filter-clear{font-size:12px;color:var(--primary);cursor:pointer;font-weight:500}
+    .filter-clear:hover{color:var(--primary-dk)}
+    table{width:100%;border-collapse:collapse}
+    th{font-size:10px;color:var(--muted);font-weight:600;text-align:left;
+       padding:10px 16px;border-bottom:1px solid var(--border);white-space:nowrap;
+       text-transform:uppercase;letter-spacing:.05em}
+    td{padding:12px 16px;border-bottom:1px solid #eef2f6;font-size:13px;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#f7fafb}
+    tr.row-risk td{background:#fef2f2;border-left:3px solid #dc2626}
+
+    /* Pills */
+    .pill{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:100px}
+    .pill-Scheduled{background:#e6f1fb;color:#0C447C}
+    .pill-GuidanceSent{background:#EEEDFE;color:#3C3489}
+    .pill-AwaitingMeal{background:#E1F5EE;color:#085041}
+    .pill-PrepStarted{background:#e1f5ee;color:#085041}
+    .pill-Confirmed{background:#eaf3de;color:#27500A}
+    .pill-NoResponse{background:#faeeda;color:#633806}
+    .pill-NoResponseRisk{background:#fcebeb;color:#791F1F}
+    .pill-AtRisk{background:#fcebeb;color:#791F1F}
+
+    /* Risk badges */
+    .risk-badge{padding:4px 10px;border-radius:100px;font-size:11px;font-weight:600;white-space:nowrap}
+    .risk-green{background:#eaf3de;color:#27500A}
+    .risk-amber{background:#faeeda;color:#633806}
+    .risk-red{background:#dc2626;color:#fff;font-weight:700}
+    .risk-elevated{color:#dc2626;font-weight:700;font-size:12px}
+
+    /* Accordion */
+    .prep-detail{background:#f7fafb;border-top:1px dashed var(--border)}
+    .prep-detail td{padding:0 !important;border-bottom:1px solid var(--border)}
+    .prep-grid{display:grid;grid-template-columns:repeat(3,1fr) auto;gap:0;padding:14px 20px;font-size:12px}
+    .prep-item{display:flex;flex-direction:column;gap:3px}
+    .prep-item-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+    .prep-item-value{font-weight:500;font-size:13px}
+    .btn-expand{background:none;border:none;cursor:pointer;font-size:14px;color:var(--muted);
+                padding:2px 6px;transition:transform .2s}
+    .btn-expand.open{transform:rotate(180deg)}
+
+    /* Protocol action buttons */
+    .protocol-actions{border-top:1px dashed var(--border);padding:14px 20px;
+      display:flex;gap:12px;flex-wrap:wrap;background:#f7fafb}
+    .btn-protocol{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;
+      cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s}
+    .btn-send-lunch{background:#E1F5EE;color:#085041;border:1px solid #9FE1CB}
+    .btn-send-lunch:hover{background:#9FE1CB}
+    .btn-send-dinner{background:#EEEDFE;color:#3C3489;border:1px solid #CECBF6}
+    .btn-send-dinner:hover{background:#CECBF6}
+    .btn-protocol:disabled{opacity:.5;cursor:not-allowed}
+    .btn-protocol-done{background:#eaf3de;color:#27500A;border:1px solid #C0DD97;cursor:default}
+    .btn-protocol-waiting{background:#faeeda;color:#633806;border:1px solid #FAC775;cursor:default}
+    @keyframes pulse-soft{0%,100%{opacity:1}50%{opacity:.6}}
+
+    /* Journey track */
+    .journey-track{border-top:1px dashed var(--border);padding:14px 20px;
+                   display:flex;gap:18px;flex-wrap:wrap;background:#f7fafb}
+    .step{font-size:12px;font-weight:500}
+    .step.done{color:#0F6E56}
+    .step.pending{color:#854F0B}
+    .step.failed{color:#A32D2D}
+    .step.failed{color:#A32D2D}
+
+    /* Automation panel */
+    .automation-panel{background:var(--surface);border:1px solid var(--border);
+                      border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+    .automation-panel h3{font-size:11px;font-weight:700;margin-bottom:16px;
+                         text-transform:uppercase;letter-spacing:.06em;color:var(--primary);
+                         display:flex;align-items:center;gap:6px}
+    .auto-item{padding:12px 14px;border:1px solid var(--border);border-radius:10px;
+               margin-bottom:10px;font-size:12px;line-height:1.5;
+               border-left:3px solid var(--accent);transition:all .15s}
+    .auto-item:hover{border-left-color:var(--green);background:#f7fafb}
+    .auto-time{font-weight:700;color:var(--navy);font-size:13px}
+    .auto-label{color:var(--muted)}
+    .auto-empty{font-size:12px;color:var(--muted);text-align:center;padding:20px}
+
+    /* Modal */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,43,70,.55);
+                   backdrop-filter:blur(4px);align-items:center;justify-content:center;z-index:200}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--surface);border-radius:16px;padding:32px;width:500px;max-width:95vw;
+           box-shadow:0 20px 60px rgba(0,0,0,.15)}
+    .modal h2{font-size:17px;font-weight:700;margin-bottom:22px;color:var(--navy)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form-group{display:flex;flex-direction:column;gap:5px}
+    .form-group.full{grid-column:1/-1}
+    label{font-size:12px;color:var(--muted)}
+    input,select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;
+                 font-size:13px;background:var(--bg);color:var(--text);width:100%}
+    input:focus,select:focus{outline:none;border-color:var(--green)}
+    .fasting-hint{grid-column:1/-1;background:#e1f5ee;border-radius:8px;
+                  padding:10px 14px;font-size:12px;color:#085041;display:none}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+    /* Phone simulator */
+    .phone-sim{position:fixed;bottom:24px;right:24px;width:340px;z-index:150;
+      transition:transform .3s;transform:translateY(calc(100% + 40px))}
+    .phone-sim.open{transform:translateY(0)}
+    .phone-frame{background:#1a1a1a;border-radius:28px;padding:8px;
+      box-shadow:0 8px 40px rgba(0,0,0,.25)}
+    .phone-screen{background:#e5ddd5;border-radius:20px;overflow:hidden;
+      display:flex;flex-direction:column;height:520px}
+    .phone-header{background:#075e54;color:#fff;padding:10px 14px;display:flex;
+      align-items:center;gap:10px;flex-shrink:0}
+    .phone-avatar{width:34px;height:34px;border-radius:50%;background:#25d366;
+      display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff}
+    .phone-name{font-size:13px;font-weight:600}
+    .phone-status{font-size:10px;opacity:.8}
+    .phone-close{margin-left:auto;background:none;border:none;color:#fff;font-size:18px;
+      cursor:pointer;padding:4px 8px;opacity:.7}
+    .phone-close:hover{opacity:1}
+    .phone-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+    .phone-messages::-webkit-scrollbar{width:4px}
+    .phone-messages::-webkit-scrollbar-thumb{background:#bbb;border-radius:4px}
+    .wa-msg{max-width:88%;padding:8px 10px;border-radius:8px;font-size:12.5px;
+      line-height:1.5;position:relative;word-wrap:break-word}
+    .wa-msg-in{background:#fff;align-self:flex-start;border-top-left-radius:0}
+    .wa-msg-out{background:#dcf8c6;align-self:flex-end;border-top-right-radius:0}
+    .wa-time{font-size:9px;color:#999;text-align:right;margin-top:4px}
+    .wa-msg b,.wa-msg strong{font-weight:600}
+    .wa-response-btns{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding:0 4px}
+    .wa-resp-btn{padding:10px 12px;border-radius:10px;border:1px solid #25d366;background:#fff;
+      font-size:12px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;
+      transition:background .15s}
+    .wa-resp-btn:hover{background:#dcf8c6}
+    .wa-resp-btn.selected{background:#25d366;color:#fff;border-color:#25d366}
+    .phone-toggle{position:fixed;bottom:24px;right:24px;width:56px;height:56px;
+      border-radius:50%;background:#25d366;border:none;cursor:pointer;z-index:149;
+      box-shadow:0 4px 12px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;
+      font-size:24px;transition:transform .2s}
+    .phone-toggle:hover{transform:scale(1.08)}
+    .phone-toggle.hidden{display:none}
+    .phone-empty{text-align:center;color:#999;font-size:12px;padding:40px 20px;line-height:1.6}
+
+    /* Call simulation overlay */
+    .phone-call-overlay{position:absolute;inset:0;background:linear-gradient(135deg,#075e54,#128c7e);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      z-index:10;border-radius:20px;opacity:0;pointer-events:none;transition:opacity .3s}
+    .phone-call-overlay.active{opacity:1;pointer-events:auto}
+    .call-avatar{width:80px;height:80px;border-radius:50%;background:#25d366;
+      display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;
+      color:#fff;margin-bottom:16px;animation:call-pulse 1s infinite}
+    @keyframes call-pulse{0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.5)}
+      50%{box-shadow:0 0 0 20px rgba(37,211,102,0)}}
+    .call-name{color:#fff;font-size:18px;font-weight:600;margin-bottom:4px}
+    .call-status{color:rgba(255,255,255,.7);font-size:13px;margin-bottom:30px}
+    .call-actions{display:flex;gap:24px}
+    .call-btn{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;font-size:22px}
+    .call-accept{background:#25d366;color:#fff}
+    .call-decline{background:#e74c3c;color:#fff}
+
+    /* Toast */
+    #toast{position:fixed;bottom:24px;left:24px;background:var(--navy);color:#fff;
+           padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;
+           transition:opacity .3s;pointer-events:none;z-index:300}
+    #toast.show{opacity:1}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+        <path d="M9 3h6v6h4l-7 7-7-7h4z"/><path d="M5 20h14"/>
+      </svg>
+    </div>
+    ReadyLab
+  </div>
+  <div class="nav-right">
+    <div class="badge-impact" id="impact-badge">0 errores preanalíticos prevenidos</div>
+    <div class="badge-live"><div class="pulse"></div>Motor de protocolo activo</div>
+    <button class="btn btn-primary" onclick="openModal()">+ Inscribir paciente</button>
+  </div>
+</nav>
+
+<div class="stats">
+  <div class="stat-card" onclick="filterBy('Scheduled')" id="card-Scheduled">
+    <div class="stat-label">Programados</div>
+    <div class="stat-val c-blue" id="cnt-Scheduled">—</div>
+  </div>
+  <div class="stat-card" onclick="filterBy('Guidance Sent')" id="card-Guidance Sent">
+    <div class="stat-label">Guía enviada</div>
+    <div class="stat-val c-teal" id="cnt-Guidance Sent">—</div>
+  </div>
+  <div class="stat-card" onclick="filterBy('Confirmed')" id="card-Confirmed">
+    <div class="stat-label">Confirmados</div>
+    <div class="stat-val c-green" id="cnt-Confirmed">—</div>
+  </div>
+  <div class="stat-card" onclick="filterBy('No Response')" id="card-No Response">
+    <div class="stat-label">Sin respuesta</div>
+    <div class="stat-val c-amber" id="cnt-No Response">—</div>
+  </div>
+  <div class="stat-card" onclick="filterBy('At Risk')" id="card-At Risk">
+    <div class="stat-label">En riesgo</div>
+    <div class="stat-val c-red" id="cnt-At Risk">—</div>
+  </div>
+</div>
+
+<!-- Compliance banner -->
+<div class="compliance-banner">
+  <div>
+    <div class="compliance-label">Cumplimiento de preparación hoy</div>
+    <div class="compliance-value" id="compliance-pct">—%</div>
+  </div>
+  <div class="funnel-mini" id="funnel-mini"></div>
+</div>
+
+<!-- Main grid: table + automations sidebar -->
+<div class="dashboard-grid">
+  <div class="table-wrap">
+    <div class="table-header">
+      <span class="table-title">Protocolo de preparación de pacientes</span>
+      <span class="filter-clear" id="filter-label" onclick="filterBy(null)"></span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Paciente</th>
+          <th>Examen</th>
+          <th>Cita</th>
+          <th>Ayuno</th>
+          <th>Riesgo</th>
+          <th>Estado</th>
+          <th>Tiempo</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="automation-panel">
+    <h3>⚡ Automatizaciones</h3>
+    <div id="automations-list">
+      <div class="auto-empty">Sin automatizaciones pendientes</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>Inscribir paciente en protocolo de preparación</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" id="f-first-name" placeholder="María">
+      </div>
+      <div class="form-group">
+        <label>Apellido</label>
+        <input type="text" id="f-last-name" placeholder="García López">
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="text" id="f-phone" placeholder="+52 55 1234 5678">
+      </div>
+      <div class="form-group">
+        <label>Correo (opcional)</label>
+        <input type="email" id="f-email" placeholder="patient@email.com">
+      </div>
+      <div class="form-group">
+        <label>Fecha y hora de cita</label>
+        <input type="datetime-local" id="f-datetime">
+      </div>
+      <div class="form-group full">
+        <label>Tipo de examen</label>
+        <select id="f-exam" onchange="updateFastingHint()"></select>
+      </div>
+      <div class="form-group full" style="margin-top:4px">
+        <label style="font-weight:600;color:var(--navy);font-size:13px">Perfil alimentario (día previo a la cita)</label>
+      </div>
+      <div class="form-group">
+        <label>Desayuno</label>
+        <select id="f-breakfast">
+          <option value="light" selected>Light Meal</option>
+          <option value="normal">Normal Meal</option>
+          <option value="high_fat">High Fat Meal</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Almuerzo</label>
+        <select id="f-lunch">
+          <option value="light">Light Meal</option>
+          <option value="normal" selected>Normal Meal</option>
+          <option value="high_fat">High Fat Meal</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Cena (última comida antes del ayuno)</label>
+        <select id="f-dinner" onchange="updateFastingHint()">
+          <option value="light">Light Meal</option>
+          <option value="normal" selected>Normal Meal</option>
+          <option value="high_fat">High Fat Meal</option>
+        </select>
+      </div>
+      <div class="fasting-hint" id="fasting-hint"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="submitAppointment()">Inscribir y activar protocolo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Phone simulator toggle button -->
+<button class="phone-toggle" id="phone-toggle" onclick="togglePhone()">📱</button>
+
+<!-- Phone simulator -->
+<div class="phone-sim" id="phone-sim">
+  <div class="phone-frame">
+    <div class="phone-screen">
+      <div class="phone-header">
+        <div class="phone-avatar">R</div>
+        <div>
+          <div class="phone-name">ReadyLab</div>
+          <div class="phone-status">en línea</div>
+        </div>
+        <button class="phone-close" onclick="clearPhone()" title="Limpiar historial" style="font-size:13px">🗑️</button>
+        <button class="phone-close" onclick="togglePhone()">✕</button>
+      </div>
+      <!-- Call simulation overlay -->
+      <div class="phone-call-overlay" id="phone-call-overlay">
+        <div class="call-avatar">R</div>
+        <div class="call-name">ReadyLab</div>
+        <div class="call-status" id="call-status">Llamando...</div>
+        <div class="call-actions">
+          <button class="call-btn call-decline" onclick="declineCall()">✕</button>
+          <button class="call-btn call-accept" onclick="acceptCall()">📞</button>
+        </div>
+      </div>
+      <div class="phone-messages" id="phone-messages">
+        <div class="phone-empty">
+          📱 Simulador de WhatsApp<br><br>
+          Abre un paciente en la tabla y presiona<br>
+          <strong>"Enviar check almuerzo"</strong> o <strong>"Enviar check cena"</strong><br>
+          para ver el mensaje aquí.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const API   = '/api/appointments/';
+  const RULES = '/api/exam-rules/';
+  let activeFilter = null;
+  let expandedRows = new Set();
+  let examRules    = {};
+
+  async function loadExamRules() {
+    const res = await fetch(RULES);
+    const data = await res.json();
+    const sel = document.getElementById('f-exam');
+    data.forEach(r => {
+      examRules[r.exam_type] = r;
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = r.exam_type;
+      sel.appendChild(opt);
+    });
+    updateFastingHint();
+  }
+
+  function updateFastingHint() {
+    const exam   = document.getElementById('f-exam').value;
+    const dinner = document.getElementById('f-dinner').value;
+    const hint   = document.getElementById('fasting-hint');
+    const rule   = examRules[exam];
+    if (rule && rule.required) {
+      const extra = (dinner === 'high_fat' && rule.meal_sensitive) ? 2 : 0;
+      const total = rule.hours + extra;
+      const risk  = dinner === 'high_fat' ? 'Elevated' : 'Low';
+      const rColor = risk === 'Elevated' ? '#A32D2D' : '#3B6D11';
+      hint.style.display = 'block';
+      hint.innerHTML = `Fasting: <strong>${rule.hours}h</strong>`
+        + (extra ? ` + <strong style="color:#854F0B">+${extra}h high-fat adjustment</strong>` : '')
+        + ` = <strong>${total}h total</strong>`
+        + ` · Risk: <strong style="color:${rColor}">${risk}</strong>`;
+    } else { hint.style.display = 'none'; }
+  }
+
+  async function fetchData() {
+    const url = activeFilter ? `${API}?status=${encodeURIComponent(activeFilter)}` : API;
+    const res = await fetch(url);
+    const data = await res.json();
+    renderCounts(data.counts);
+    renderCompliance(data);
+    renderAutomations(data.automations || []);
+    renderTable(data.appointments);
+  }
+
+  function renderCounts(counts) {
+    Object.entries(counts).forEach(([k, v]) => {
+      const el = document.getElementById(`cnt-${k}`);
+      if (el) el.textContent = v;
+    });
+  }
+
+  function renderCompliance(data) {
+    document.getElementById('compliance-pct').textContent = (data.compliance_pct || 0) + '%';
+    document.getElementById('impact-badge').textContent =
+      (data.errors_prevented || 0) + ' Preanalytic Errors Prevented Today';
+    const c = data.counts || {};
+    const total = Object.values(c).reduce((a,b) => a+b, 0);
+    const funnel = document.getElementById('funnel-mini');
+    funnel.innerHTML = [
+      {n: total, l: 'Enrolled', color: '#185FA5'},
+      {n: (c['Guidance Sent']||0) + (c['Awaiting Meal']||0) + (c['Prep Started']||0) + (c['Confirmed']||0), l: 'Guidance Sent', color: '#0F6E56'},
+      {n: c['Confirmed']||0, l: 'Confirmed', color: '#3B6D11'},
+      {n: (c['No Response']||0) + (c['No Response Risk']||0) + (c['At Risk']||0), l: 'At Risk', color: '#A32D2D'},
+    ].map(s => `<span><span class="funnel-dot" style="background:${s.color}"></span>${s.n} ${s.l}</span>`).join('');
+  }
+
+  function renderAutomations(autos) {
+    const el = document.getElementById('automations-list');
+    if (!autos.length) {
+      el.innerHTML = '<div class="auto-empty">No pending automations</div>';
+      return;
+    }
+    el.innerHTML = autos.map(a =>
+      `<div class="auto-item">
+        <div class="auto-time">${a.time}</div>
+        <div class="auto-label">${a.label} — ${a.patient}</div>
+      </div>`
+    ).join('');
+  }
+
+  const PILL_LABELS = {
+    'Scheduled':        ['Scheduled',        'Scheduled'],
+    'Guidance Sent':    ['Guidance Sent',    'GuidanceSent'],
+    'Awaiting Meal':    ['Awaiting Meal',    'AwaitingMeal'],
+    'Prep Started':     ['Prep Started',     'PrepStarted'],
+    'Confirmed':        ['Confirmed',        'Confirmed'],
+    'No Response':      ['No Response',      'NoResponse'],
+    'No Response Risk': ['No Response Risk', 'NoResponseRisk'],
+    'At Risk':          ['At Risk',          'AtRisk'],
+  };
+
+  function countdown(scheduledAt) {
+    const diff = Math.round((new Date(scheduledAt) - Date.now()) / 60000);
+    if (diff > 0) { const h = Math.floor(diff/60), m = diff%60; return h > 0 ? `${h}h ${m}m` : `${m} min`; }
+    return `${Math.abs(diff)}m ago`;
+  }
+
+  const MEAL_LABELS = { light:'Light Meal', normal:'Normal Meal', high_fat:'High Fat Meal' };
+  const MEAL_STYLES = { light:'background:#eaf3de;color:#27500A', normal:'background:#f1efe8;color:#444441', high_fat:'background:#fcebeb;color:#791F1F' };
+
+  function mealPill(key) {
+    return `<span style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:100px;${MEAL_STYLES[key]||MEAL_STYLES.normal}">${MEAL_LABELS[key]||key}</span>`;
+  }
+
+  function riskBadge(a) {
+    let label='Bajo', cls='risk-green';
+    if (a.status === 'No Response' || a.status === 'No Response Risk') { label='Sin respuesta'; cls='risk-amber'; }
+    if (a.risk_label === 'Elevated') { label='⚠️ Riesgo elevado'; cls='risk-red'; }
+    if (a.status === 'At Risk') { label='⚠️ En riesgo'; cls='risk-red'; }
+    return `<span class="risk-badge ${cls}">${label}</span>`;
+  }
+
+  function toggleDetail(id) {
+    const row = document.getElementById('detail-' + id);
+    const btn = document.getElementById('expand-' + id);
+    if (row) {
+      const v = row.style.display !== 'none';
+      row.style.display = v ? 'none' : 'table-row';
+      if (btn) btn.classList.toggle('open', !v);
+      if (v) { expandedRows.delete(id); } else { expandedRows.add(id); }
+    }
+  }
+
+  function renderTable(appts) {
+    const tbody = document.getElementById('tbody');
+    const cols = 8;
+    if (!appts.length) {
+      tbody.innerHTML = `<tr><td colspan="${cols}" style="text-align:center;padding:28px;color:#6b6b69">No patients enrolled.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = appts.map(a => {
+      const [label, cls] = PILL_LABELS[a.status] || [a.status, 'Scheduled'];
+      const isRisk = a.status === 'At Risk' || a.status === 'No Response Risk' || a.meal_extra_hours > 0;
+
+      const hasExtra = a.meal_extra_hours > 0;
+      const extraBadge = hasExtra
+        ? `<span style="margin-left:4px;font-size:10px;background:#dc2626;color:#fff;padding:2px 8px;border-radius:100px;font-weight:700;animation:pulse-soft 2s infinite">⚠️ +${a.meal_extra_hours}h por cena pesada</span>` : '';
+      const fastingCell = a.fasting_required
+        ? `${a.fasting_start_fmt} <span style="${hasExtra ? 'color:#dc2626;font-weight:700' : 'color:#9c9a92'};font-size:11px">(${a.total_fasting_hours}h)</span>${extraBadge}`
+        : '<span style="color:#9c9a92">—</span>';
+
+      // Journey steps with timestamps and message log
+      const steps = (a.journey_steps || []);
+      const journeyHtml = steps.map(s => {
+        let icon, sCls;
+        if (s.status === 'responded') { icon = '✓'; sCls = 'done'; }
+        else if (s.status === 'sent')  { icon = '✓'; sCls = 'done'; }
+        else if (s.status === 'expired') { icon = '✗'; sCls = 'failed'; }
+        else { icon = '○'; sCls = 'pending'; }
+
+        const time = s.time ? `<span style="color:#9c9a92;font-size:10px;margin-left:2px">${s.time}</span>` : '';
+        const resp = s.response ? ` → <strong>${s.response}</strong>` : '';
+        const statusTag = s.status === 'responded'
+          ? '<span style="font-size:10px;background:#eaf3de;color:#27500A;padding:1px 6px;border-radius:100px;margin-left:4px">respondido</span>'
+          : s.status === 'sent'
+          ? '<span style="font-size:10px;background:#e6f1fb;color:#0C447C;padding:1px 6px;border-radius:100px;margin-left:4px">enviado</span>'
+          : s.status === 'expired'
+          ? '<span style="font-size:10px;background:#fcebeb;color:#791F1F;padding:1px 6px;border-radius:100px;margin-left:4px">sin respuesta</span>'
+          : '<span style="font-size:10px;background:#f1efe8;color:#444441;padding:1px 6px;border-radius:100px;margin-left:4px">programado</span>';
+
+        return `<div class="step ${sCls}">${icon} ${s.label}${resp} ${time} ${statusTag}</div>`;
+      }).join('');
+
+      const mainRow = `<tr class="${isRisk ? 'row-risk' : ''}" style="cursor:pointer" onclick="toggleDetail(${a.id})">
+        <td><strong>${a.patient_name}</strong><br><span style="color:#6b6b69;font-size:12px">${a.patient_phone}</span></td>
+        <td>${a.exam_type}</td>
+        <td>${new Date(a.scheduled_at).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})}</td>
+        <td style="color:#6b6b69;white-space:nowrap">${fastingCell}</td>
+        <td>${riskBadge(a)}</td>
+        <td><span class="pill pill-${cls}">${label}</span></td>
+        <td style="font-variant-numeric:tabular-nums">${countdown(a.scheduled_at)}</td>
+        <td style="display:flex;align-items:center;gap:4px">
+          <button class="btn btn-sm" onclick="event.stopPropagation();sendReminder(${a.id})">Recordar</button>
+          <button class="btn-expand" id="expand-${a.id}" onclick="event.stopPropagation();toggleDetail(${a.id})">&#9660;</button>
+        </td>
+      </tr>`;
+
+      // Protocol action buttons (almuerzo & cena)
+      const actions = (a.protocol_actions || []);
+      const MEAL_ESP = { light:'Comida ligera', normal:'Comida normal', high_fat:'Alta en grasas' };
+      const actionBtns = actions.map(act => {
+        if (act.responded) {
+          return `<button class="btn-protocol btn-protocol-done" disabled>
+            ✓ ${act.label.replace('Enviar ','').split(' (')[0]} → ${MEAL_ESP[act.response] || act.response}
+          </button>`;
+        }
+        if (act.waiting_response) {
+          const btnCls = act.type === 'meal_check_lunch' ? 'btn-send-lunch' : 'btn-send-dinner';
+          return `<div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:#d97706">⏳ Sin respuesta</span>
+            <button class="btn-protocol ${btnCls}"
+              onclick="event.stopPropagation();resendProtocolEvent(${act.event_id}, this)">
+              🔄 Reenviar notificación
+            </button>
+          </div>`;
+        }
+        if (act.can_send) {
+          const btnCls = act.type === 'meal_check_lunch' ? 'btn-send-lunch' : 'btn-send-dinner';
+          const emoji = act.type === 'meal_check_lunch' ? '🍽️' : '🌙';
+          return `<button class="btn-protocol ${btnCls}"
+            onclick="event.stopPropagation();sendProtocolEvent(${act.event_id}, this)">
+            ${emoji} ${act.label}
+          </button>`;
+        }
+        return '';
+      }).join('');
+
+      const detailRow = `<tr class="prep-detail" id="detail-${a.id}" style="display:none">
+        <td colspan="${cols}">
+          <div class="prep-grid">
+            <div class="prep-item">
+              <span class="prep-item-label">Desayuno</span>
+              <span class="prep-item-value">${mealPill(a.breakfast_type || 'light')}</span>
+            </div>
+            <div class="prep-item">
+              <span class="prep-item-label">Almuerzo</span>
+              <span class="prep-item-value">${mealPill(a.lunch_type || 'normal')}</span>
+            </div>
+            <div class="prep-item">
+              <span class="prep-item-label">Cena</span>
+              <span class="prep-item-value">${mealPill(a.dinner_type || 'normal')}</span>
+            </div>
+            <div class="prep-item" style="text-align:right">
+              <span class="prep-item-label">Ayuno recomendado</span>
+              <span class="prep-item-value">${a.fasting_required ? a.total_fasting_hours + ' horas' : 'No requerido'}</span>
+              <span class="prep-item-label" style="margin-top:4px">Riesgo preanalítico</span>
+              <span class="prep-item-value ${a.risk_label==='Elevated'?'risk-elevated':'risk-low'}">${a.risk_label === 'Elevated' ? '⚠️ RIESGO ELEVADO — Cena pesada detectada' : '✅ Riesgo bajo'}</span>
+            </div>
+          </div>
+          ${actionBtns ? `<div class="protocol-actions">${actionBtns}</div>` : ''}
+          ${journeyHtml ? `<div class="journey-track">${journeyHtml}</div>` : ''}
+        </td>
+      </tr>`;
+
+      return mainRow + detailRow;
+    }).join('');
+
+    // Restore expanded rows after re-render
+    expandedRows.forEach(id => {
+      const row = document.getElementById('detail-' + id);
+      const btn = document.getElementById('expand-' + id);
+      if (row) { row.style.display = 'table-row'; }
+      if (btn) { btn.classList.add('open'); }
+    });
+  }
+
+  function filterBy(s) {
+    document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+    if (s === activeFilter || !s) {
+      activeFilter = null;
+      document.getElementById('filter-label').textContent = '';
+    } else {
+      activeFilter = s;
+      document.getElementById(`card-${s}`)?.classList.add('active');
+      const [label] = PILL_LABELS[s] || [s];
+      document.getElementById('filter-label').textContent = `Filter: ${label} · clear ×`;
+    }
+    fetchData();
+  }
+
+  // ── Phone simulator ──────────────────────────────────────────────────────
+  let phoneOpen = false;
+
+  function clearPhone() {
+    const container = document.getElementById('phone-messages');
+    container.innerHTML = `<div class="phone-empty">
+      📱 Simulador de WhatsApp<br><br>
+      Historial limpio.<br>
+      Registra un paciente o envía un check<br>
+      para ver los mensajes aquí.
+    </div>`;
+  }
+
+  function togglePhone() {
+    phoneOpen = !phoneOpen;
+    document.getElementById('phone-sim').classList.toggle('open', phoneOpen);
+    document.getElementById('phone-toggle').classList.toggle('hidden', phoneOpen);
+  }
+
+  function phoneAddMessage(text, type='in') {
+    const container = document.getElementById('phone-messages');
+    // Clear empty state
+    const empty = container.querySelector('.phone-empty');
+    if (empty) empty.remove();
+
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('es', {hour:'2-digit',minute:'2-digit'});
+
+    const div = document.createElement('div');
+    div.className = `wa-msg wa-msg-${type}`;
+    // Convert *bold* to <b>bold</b> and \n to <br>
+    let html = text.replace(/\*(.*?)\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+    div.innerHTML = html + `<div class="wa-time">${timeStr} ✓✓</div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function phoneAddResponseButtons(token) {
+    const container = document.getElementById('phone-messages');
+    const btnsDiv = document.createElement('div');
+    btnsDiv.className = 'wa-response-btns';
+    btnsDiv.id = 'wa-btns-' + token;
+    btnsDiv.innerHTML = `
+      <button class="wa-resp-btn" onclick="phoneRespond('${token}','light',this)">
+        🥗 Comida ligera
+      </button>
+      <button class="wa-resp-btn" onclick="phoneRespond('${token}','normal',this)">
+        🍛 Comida normal
+      </button>
+      <button class="wa-resp-btn" onclick="phoneRespond('${token}','high_fat',this)">
+        🍔 Comida pesada / Alta en grasas
+      </button>
+    `;
+    container.appendChild(btnsDiv);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  async function phoneRespond(token, response, btnEl) {
+    // Disable all buttons in this group
+    const group = btnEl.parentElement;
+    group.querySelectorAll('.wa-resp-btn').forEach(b => { b.disabled = true; b.style.opacity = '.5'; });
+    btnEl.style.opacity = '1';
+    btnEl.classList.add('selected');
+
+    const LABELS = {light:'Comida ligera 🥗', normal:'Comida normal 🍛', high_fat:'Comida pesada 🍔'};
+    phoneAddMessage(LABELS[response] || response, 'out');
+
+    // Call the API
+    const res = await fetch(`/meal-check/${token}/?response=${response}`);
+    if (res.ok) {
+      setTimeout(() => {
+        phoneAddMessage('✅ ¡Recibido! Tu respuesta fue registrada.\nTu protocolo de ayuno se actualizó automáticamente.');
+        fetchData();
+      }, 800);
+    }
+
+    // Remove buttons after response
+    setTimeout(() => group.remove(), 1200);
+  }
+
+  async function resendProtocolEvent(eventId, btnEl) {
+    btnEl.disabled = true;
+    btnEl.textContent = 'Reenviando...';
+    const res = await fetch(`/api/protocol-event/${eventId}/resend/`, { method: 'POST' });
+    const data = await res.json();
+    showToast(data.message);
+
+    if (data.ok && data.wa_message) {
+      if (!phoneOpen) togglePhone();
+      phoneAddMessage('🔄 *Reenvío de notificación*');
+      setTimeout(() => {
+        let cleanMsg = data.wa_message
+          .replace(/→\s*http[^\n]*/g, '')
+          .replace(/\\n/g, '\n')
+          .replace(/\{base_url\}[^\n]*/g, '');
+        phoneAddMessage(cleanMsg);
+
+        if (data.response_token && (data.event_type === 'meal_check_lunch' || data.event_type === 'meal_check_dinner')) {
+          setTimeout(() => phoneAddResponseButtons(data.response_token), 600);
+        }
+      }, 500);
+    }
+    fetchData();
+  }
+
+  async function sendProtocolEvent(eventId, btnEl) {
+    btnEl.disabled = true;
+    btnEl.textContent = 'Enviando...';
+    const res = await fetch(`/api/protocol-event/${eventId}/send/`, { method: 'POST' });
+    const data = await res.json();
+    showToast(data.message);
+
+    if (data.ok && data.wa_message) {
+      // Open phone simulator and show message
+      if (!phoneOpen) togglePhone();
+      // Clean message for display (remove URLs, keep text)
+      let cleanMsg = data.wa_message
+        .replace(/→\s*http[^\n]*/g, '')
+        .replace(/\\n/g, '\n')
+        .replace(/\{base_url\}[^\n]*/g, '');
+      phoneAddMessage(cleanMsg);
+
+      // If it's a meal check, show response buttons
+      if (data.response_token && (data.event_type === 'meal_check_lunch' || data.event_type === 'meal_check_dinner')) {
+        setTimeout(() => phoneAddResponseButtons(data.response_token), 600);
+      }
+    }
+
+    fetchData();
+  }
+
+  async function sendReminder(id) {
+    const res = await fetch(`/api/appointments/${id}/remind/`, { method: 'POST' });
+    const data = await res.json();
+    showToast(data.message);
+    // If whatsapp_link mode, open WhatsApp in new tab
+    if (data.wa_link) { window.open(data.wa_link, '_blank'); }
+  }
+
+  // ── Post-register interaction helpers ─────────────────────────────────────
+
+  function phoneAddInteractionBtn(label, onClick) {
+    const container = document.getElementById('phone-messages');
+    const div = document.createElement('div');
+    div.className = 'wa-response-btns';
+    const btn = document.createElement('button');
+    btn.className = 'wa-resp-btn';
+    btn.textContent = label;
+    btn.onclick = () => { div.remove(); onClick(); };
+    div.appendChild(btn);
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function phoneAddChoiceButtons() {
+    const container = document.getElementById('phone-messages');
+    const div = document.createElement('div');
+    div.className = 'wa-response-btns';
+    div.innerHTML = `
+      <button class="wa-resp-btn" onclick="chooseNutritionHelp(this)" style="border-color:#25d366">
+        📞 Sí, quiero ayuda personalizada
+      </button>
+      <button class="wa-resp-btn" onclick="chooseNoHelp(this)">
+        ✅ No gracias, estoy bien
+      </button>
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  let ringtoneInterval = null;
+  let ringtoneTimeout = null;
+
+  function startRingtone() {
+    // Create audio context for ringtone simulation
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      function ring() {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 440;
+        gain.gain.value = 0.15;
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        osc.stop(ctx.currentTime + 0.4);
+        // Second tone
+        setTimeout(() => {
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          osc2.frequency.value = 554;
+          gain2.gain.value = 0.15;
+          osc2.start();
+          gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+          osc2.stop(ctx.currentTime + 0.4);
+        }, 150);
+      }
+      ring();
+      ringtoneInterval = setInterval(ring, 1500);
+    } catch(e) { console.log('Audio not available'); }
+  }
+
+  function stopRingtone() {
+    if (ringtoneInterval) { clearInterval(ringtoneInterval); ringtoneInterval = null; }
+    if (ringtoneTimeout) { clearTimeout(ringtoneTimeout); ringtoneTimeout = null; }
+  }
+
+  function chooseNutritionHelp(btnEl) {
+    const group = btnEl.parentElement;
+    group.querySelectorAll('.wa-resp-btn').forEach(b => { b.disabled = true; b.style.opacity = '.5'; });
+    btnEl.style.opacity = '1'; btnEl.classList.add('selected');
+    phoneAddMessage('📞 Sí, quiero ayuda personalizada', 'out');
+    setTimeout(() => group.remove(), 500);
+
+    // After 1s show "calling" message
+    setTimeout(() => {
+      phoneAddMessage('📞 Perfecto. Te llamaremos en unos segundos...');
+
+      // After 2s simulate incoming call
+      setTimeout(() => {
+        const overlay = document.getElementById('phone-call-overlay');
+        overlay.classList.add('active');
+        document.getElementById('call-status').textContent = 'Llamando...';
+        startRingtone();
+
+        // Auto-stop ringing after 6s
+        ringtoneTimeout = setTimeout(() => {
+          stopRingtone();
+          document.getElementById('call-status').textContent = 'Llamada entrante...';
+        }, 6000);
+      }, 2000);
+    }, 1000);
+  }
+
+  function acceptCall() {
+    stopRingtone();
+    const overlay = document.getElementById('phone-call-overlay');
+    document.getElementById('call-status').textContent = 'Conectado · 00:00';
+    
+    // Simulate call duration counter
+    let seconds = 0;
+    const timer = setInterval(() => {
+      seconds++;
+      const m = Math.floor(seconds/60).toString().padStart(2,'0');
+      const s = (seconds%60).toString().padStart(2,'0');
+      document.getElementById('call-status').textContent = `Conectado · ${m}:${s}`;
+    }, 1000);
+
+    // After 3s "end call" and show nutrition message
+    setTimeout(() => {
+      clearInterval(timer);
+      overlay.classList.remove('active');
+
+      phoneAddMessage(
+        '🥬 *ReadyLab — Guía de alimentación personalizada*\n\n' +
+        'Gracias por tu llamada. Aquí tienes las recomendaciones para hoy:\n\n' +
+        '*🍳 Desayuno recomendado:*\n' +
+        '• Avena con agua o leche descremada\n' +
+        '• Pan integral con jamón de pavo\n' +
+        '• Fruta: manzana, pera o papaya\n' +
+        '• Té o café sin azúcar\n\n' +
+        '*🥗 Almuerzo recomendado:*\n' +
+        '• Pechuga de pollo a la plancha o pescado al vapor\n' +
+        '• Arroz integral o quinoa\n' +
+        '• Ensalada fresca con poco aceite\n' +
+        '• Evita: frituras, salsas cremosas, embutidos\n\n' +
+        '*🌙 Cena recomendada (última comida antes del ayuno):*\n' +
+        '• Sopa de verduras o caldo ligero\n' +
+        '• Ensalada con pollo desmenuzado\n' +
+        '• Yogurt natural sin azúcar\n' +
+        '• Evita: carnes rojas, pizza, hamburguesas, alcohol\n\n' +
+        '*⚠️ Importante:*\n' +
+        '• Toma al menos 8 vasos de agua durante el día\n' +
+        '• No consumas alcohol hoy\n' +
+        '• Tus medicamentos habituales puedes tomarlos normal\n\n' +
+        '¡Siguiendo estas recomendaciones tus resultados serán más precisos! 💪'
+      );
+
+      setTimeout(() => {
+        phoneAddMessage('¿Tienes alguna otra pregunta? Si no, te seguiremos acompañando con los recordatorios automáticos. 🙂');
+        setTimeout(() => {
+          phoneAddInteractionBtn('✅ Todo claro, gracias', () => {
+            phoneAddMessage('✅ Todo claro, gracias', 'out');
+            setTimeout(() => {
+              phoneAddMessage('¡Perfecto! Estaremos en contacto. Recuerda que más tarde te preguntaremos sobre tus comidas. ¡Que tengas buen día! 😊');
+            }, 800);
+          });
+        }, 600);
+      }, 1000);
+    }, 3000);
+  }
+
+  function declineCall() {
+    stopRingtone();
+    document.getElementById('phone-call-overlay').classList.remove('active');
+    setTimeout(() => {
+      phoneAddMessage('📱 Llamada perdida. Si cambias de opinión, puedes solicitar ayuda en cualquier momento.');
+    }, 500);
+  }
+
+  function chooseNoHelp(btnEl) {
+    const group = btnEl.parentElement;
+    group.querySelectorAll('.wa-resp-btn').forEach(b => { b.disabled = true; b.style.opacity = '.5'; });
+    btnEl.style.opacity = '1'; btnEl.classList.add('selected');
+    phoneAddMessage('✅ No gracias, estoy bien', 'out');
+    setTimeout(() => group.remove(), 500);
+
+    setTimeout(() => {
+      phoneAddMessage('¡Perfecto! Si necesitas ayuda más adelante, solo responde a este chat.\n\nTe enviaremos recordatorios automáticos sobre tus comidas. ¡Que tengas buen día! 😊');
+    }, 800);
+  }
+
+  async function submitAppointment() {
+    const body = {
+      patient_first_name: document.getElementById('f-first-name').value.trim(),
+      patient_last_name:  document.getElementById('f-last-name').value.trim(),
+      patient_phone:      document.getElementById('f-phone').value.trim(),
+      patient_email:      document.getElementById('f-email').value.trim(),
+      exam_type:      document.getElementById('f-exam').value,
+      scheduled_at:   document.getElementById('f-datetime').value,
+      breakfast_type: document.getElementById('f-breakfast').value,
+      lunch_type:     document.getElementById('f-lunch').value,
+      dinner_type:    document.getElementById('f-dinner').value,
+    };
+    if (!body.patient_first_name || !body.patient_last_name || !body.patient_phone || !body.scheduled_at) {
+      showToast('Completa los campos obligatorios'); return;
+    }
+    // Ensure datetime has seconds
+    if (body.scheduled_at && body.scheduled_at.length === 16) {
+      body.scheduled_at += ':00';
+    }
+
+    const res = await fetch('/api/appointments/create/', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+    });
+    if (res.ok) {
+      const result = await res.json();
+      closeModal();
+      showToast('Paciente registrado en protocolo');
+      // Clear form
+      document.getElementById('f-first-name').value = '';
+      document.getElementById('f-last-name').value = '';
+      document.getElementById('f-phone').value = '';
+      document.getElementById('f-email').value = '';
+      document.getElementById('f-datetime').value = '';
+      fetchData();
+
+      // ── Post-register flow in phone simulator ──────────────────
+      if (result.welcome_message) {
+        if (!phoneOpen) togglePhone();
+        let cleanMsg = result.welcome_message.replace(/\\n/g, '\n');
+        phoneAddMessage(cleanMsg);
+
+        // Step 1: After 1.5s show "De acuerdo" button
+        setTimeout(() => {
+          phoneAddInteractionBtn('👍 De acuerdo, entendido', () => {
+            phoneAddMessage('👍 De acuerdo, entendido', 'out');
+
+            // Step 2: After 1s ask about nutrition help
+            setTimeout(() => {
+              phoneAddMessage(
+                '¿Necesitas ayuda personalizada con tu alimentación para hoy?\n\n' +
+                'Podemos llamarte para darte recomendaciones específicas según tu examen.'
+              );
+
+              // Step 3: Show two options
+              setTimeout(() => {
+                phoneAddChoiceButtons();
+              }, 600);
+            }, 1000);
+          });
+        }, 1500);
+      }
+    }
+    else {
+      try {
+        const err = await res.json();
+        const msgs = Object.values(err).flat().join(', ');
+        showToast('Error: ' + msgs);
+        console.error('Create error:', err);
+      } catch(e) {
+        showToast('Error al registrar paciente');
+        console.error('Create error:', e);
+      }
+    }
+  }
+
+  function openModal() {
+    document.getElementById('modal').classList.add('open');
+    // Auto-fill datetime to tomorrow 8:00 AM
+    const dt = document.getElementById('f-datetime');
+    if (!dt.value) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(8, 0, 0, 0);
+      dt.value = tomorrow.toISOString().slice(0, 16);
+    }
+  }
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  loadExamRules();
+  fetchData();
+  setInterval(fetchData, 5000);
+</script>
+</body>
+</html>
